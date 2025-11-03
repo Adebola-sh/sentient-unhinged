@@ -1,0 +1,6 @@
+.env
+/sentenv
+__pycache__/
+*.pyc
+/sentientenv
+.vscode/
