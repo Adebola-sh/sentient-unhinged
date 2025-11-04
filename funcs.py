@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
-from telegram.ext import Application, ContextTypes, ConversationHandler, ExtBot, filters, MessageHandler
+from telegram.ext import Application, ContextTypes, CommandHandler,ConversationHandler, ExtBot, filters, MessageHandler
 
 
 
@@ -16,10 +16,25 @@ client = OpenAI(
     
 )
 
+async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Send a message when the command /start is issued."""
+    user = update.effective_user
+    assert user
+    assert update.effective_chat
+
+    welcome_message = f"""Hello! I am your Unhinged AI Bot built by 
+    <b> <a href= 'https://x.com/nosinglefuck'>⇴NSFG</a>⬩ (No Single Fucks Given)</b> on X(twitter). 
+    \n\nSend me any text and I'll respond with something interesting!"""
+
+  
+    await update.effective_chat.send_message(
+        welcome_message 
+    )
+
 
 async def receive_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
-    # assert user, "User not found"
+    assert user, "User not found"
     user_input = update.message.text #update.effective_message.text handles both message and edited_message
     print(f"Received input from {user.id}: {user_input}")
     completion = client.chat.completions.create(
@@ -38,6 +53,7 @@ async def receive_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     application = Application.builder().token(TOKEN).build()
     application.add_handler(MessageHandler(filters.TEXT, receive_input))
+    application.add_handler(CommandHandler("start", start_handler))
 
     #run the bot until the user presses Ctrl-C
     application.run_polling()
